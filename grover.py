@@ -32,7 +32,11 @@ def diffusion_operator(n):
     diffusion_matrix = np.full((N, N), mean_amplitude) - np.identity(N)
     return diffusion_matrix
 
-def grover_algorithm(n, target_indices= [0], iterations=1, grover_oracle= None, show_states= False):
+def grover_algorithm(n, target_indices= [], iterations=1, grover_oracle= None, show_states= False):
+
+    # force to pass the oracle, or at least the targets to create the oracle
+    assert (len(target_indices) > 0) or (grover_oracle is not None)
+
     """Simulates Grover's algorithm.
     
     Args:
@@ -75,7 +79,7 @@ def grover_algorithm(n, target_indices= [0], iterations=1, grover_oracle= None, 
 def main():
     # Parameters
     n = 6  # Number of qubits
-    target_index = [5,54]  # Index of the target element
+    target_index = [5,54,63]  # Index of the target element
     iterations = int(np.floor(np.pi / 4 * np.sqrt((2 ** n)/len(target_index))))  # Optimal number of iterations
     iterations = 8
     # Run Grover's algorithm
