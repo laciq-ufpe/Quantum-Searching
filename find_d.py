@@ -2,21 +2,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 from grover import grover_algorithm
 
+""" Negative numbers are the possible types for artificial indices, do not use them"""
+
 class Element:
-    def __init__(self, value= None, tipo= None, is_artificial= False) -> None:
-        if not is_artificial:
-            assert (value is not None ) and (tipo is not None) 
-
+    def __init__(self, tipo, value= None, is_artificial= False) -> None:
+        # Element with null values will automatically be artificial
+        if value is None:
+            is_artificial = True
+            assert tipo < 0
+            
         self.value = np.inf if is_artificial else value 
-        self.type = np.nan if is_artificial else tipo
+        self.type = tipo
         self.is_artificial= is_artificial
-
         
 
 class SmallestSet:
     def __init__(self,d) -> None:
-        self.elements = [Element(is_artificial= True) for _ in range(d)] # TODO make it a heap
-        self.elements_types = { np.nan : index_in_set 
+        # start creating a list of artificial elements to be replaced later
+        self.elements = [Element(tipo= -(i+1), is_artificial= True) for i in range(d)] # TODO make it a heap
+        self.elements_types = { self.elements[index_in_set].type : index_in_set 
                                     for index_in_set in range(d)}
 
     def print_elements(self):
@@ -52,7 +56,13 @@ class SmallestSet:
 
     def improve(self, element):
         if element.type in self.elements_types:
-            self.push_known(element)
+            # get the element of the same type 
+            index_element_in_set = self.elements_types[element.type]
+            element_in_set = self.elements[index_element_in_set]
+            # if the new element changes
+            if element_in_set.value > element.value: 
+                self.push_known(element)
+                
         elif element.value < self.greatest_element().value:
             self.push_unknown(element)
 
@@ -69,23 +79,26 @@ def classical_find_d_smallest_diff_types(f,g,d):
 
     n = int(np.ceil(np.log2(N)))
     assert 2**n == N # sequences are of size 2**n
-
+    
+    # number of types
     e = len(np.unique(g))
     if e < d: print(f'warning: not enough element types (e = {e}) for wanted solution (d = {d}), making: d = {e}')
     d = min(e,d)
 
     I = SmallestSet(d)
 
-    elementos = [Element(f[i],g[i]) for i in range(N)]
+    elementos = [Element(tipo= g[i], value= f[i]) for i in range(N)]
     t = N
 
-    for _ in range(10):
+    for _ in range(1000):
+
 
         target_indices = np.where([I.is_good_element(elemento) for elemento in elementos])
         
         n_iterations = int(np.sqrt(N/t))
-        final_state = grover_algorithm(n,target_indices, iterations= n_iterations)
-        j = np.argmax(np.abs(final_state) ** 2) 
+        final_state = grover_algorithm(n,target_indices,iterations=n_iterations)
+        probabilities = np.abs(final_state) ** 2
+        j = np.random.choice(N, p= probabilities)
         element_j = elementos[j]
         I.improve(element_j)
         t = max(t//2,1 )
@@ -94,8 +107,26 @@ def classical_find_d_smallest_diff_types(f,g,d):
 
 if __name__ == "__main__":
 
-    f = [ 1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8  ]
-    g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
-    d = 2
-    I = classical_find_d_smallest_diff_types(f,g,d)
-    I.print_elements()
+    def erro_no_teste(I : SmallestSet, lista_tipos_valores):
+        elementos_I = [(e.type,e.value) for e in I.elements]
+        
+        return set(elementos_I) != set(lista_tipos_valores)
+    
+    count_1 = 0
+    count_2 = 0 
+    for _ in range(100):
+        f = [ 1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 , 8]
+        g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
+        d = 3
+        I = classical_find_d_smallest_diff_types(f,g,d)
+        count_1 += int(erro_no_teste(I, [('a',1),('b',4),('c',8)]))
+
+        f = [ 5 ,  4 ,  3 ,  2 ,  1 ,  0 ,  -1 , -2]
+        g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
+        d = 3
+        I = classical_find_d_smallest_diff_types(f,g,d)
+        count_2 += int( erro_no_teste(I, [('a',3), ('b',-1), ('c',-2)]))
+    
+    print("n° errados no teste1:",count_1)
+    print("n° errados no teste2:",count_2)
+    

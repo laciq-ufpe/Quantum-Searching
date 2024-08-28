@@ -58,7 +58,8 @@ def grover_algorithm(n, target_indices= [], iterations=1, grover_oracle= None, s
     diffusion_matrix = diffusion_operator(n)
     
     frames = []
-    fig= plt.figure()
+    if show_states:
+        fig= plt.figure()
 
     # Grover's iteration
     for _ in range(iterations):

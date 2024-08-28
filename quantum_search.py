@@ -7,11 +7,8 @@ def quantum_search(L, target_indices):
     oracle_call_counter = 0
     """L should be a numpy array"""
     target_values = L[target_indices]
-    n = int(np.round(np.log2(len(L))))
+    n = int(np.ceil(np.log2(len(L))))
     N = 2**n
-    if N < len(L):
-        n += 1 
-        N = 2*N
 
     m = 1 # max number of iterations
     i = 0 # guess of target index
