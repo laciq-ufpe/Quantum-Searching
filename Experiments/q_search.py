@@ -41,7 +41,7 @@ if __name__ == "__main__":
     oracle_mean_per_n = []
     oracle_std_per_n  = []
 
-    lista_qubits = np.arange(1,17)
+    lista_qubits = np.arange(1,14)
 
     for n in tqdm(lista_qubits):
         oracle_call_counter_list = []
