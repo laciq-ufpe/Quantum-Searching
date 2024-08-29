@@ -1,6 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from grover import grover_algorithm
+from quantum_search import quantum_search
+
+""" implementation based on https://arxiv.org/pdf/quant-ph/0401091
+Problem 3 (Find d smallest values of different type) """
+
 
 """ Negative numbers are the possible types for artificial indices, do not use them"""
 
@@ -28,7 +33,7 @@ class SmallestSet:
             print(element.value, element.type)
 
     def greatest_element_position(self):
-        element_index = np.argmax([element.value for element in self.elements])
+        element_index = int(np.argmax([element.value for element in self.elements]))
         return element_index
 
     def greatest_element(self,):
@@ -67,6 +72,13 @@ class SmallestSet:
             self.push_unknown(element)
 
     def is_good_element(self,element):
+        # 1. either g(j) = g(i) and f(j) < f(i) for some i ∈ I
+        if element.type in self.elements_types:
+            index_element_in_set = self.elements_types[element.type]
+            element_in_set = self.elements[index_element_in_set]
+            return element.value < element_in_set.value
+
+        # 2. or g(j) not ∈ g(I) and f(j) < f(i) for some i ∈ I
         return element.value < self.greatest_element().value
 
 
@@ -88,22 +100,25 @@ def classical_find_d_smallest_diff_types(f,g,d):
     I = SmallestSet(d)
 
     elementos = [Element(tipo= g[i], value= f[i]) for i in range(N)]
-    t = N
 
-    for _ in range(1000):
+    oracle_call_counter = 0
+    grover_call_counter = 0
 
+    for _ in range(100*int(np.sqrt(N*d))):
 
-        target_indices = np.where([I.is_good_element(elemento) for elemento in elementos])
+        target_indices = [index for index, elemento in enumerate(elementos) if I.is_good_element(elemento)]
+        if len(target_indices) == 0:
+            break
         
-        n_iterations = int(np.sqrt(N/t))
-        final_state = grover_algorithm(n,target_indices,iterations=n_iterations)
-        probabilities = np.abs(final_state) ** 2
-        j = np.random.choice(N, p= probabilities)
+        j, oracle_call_counter_cur, grover_call_counter_cur = quantum_search(n, target_indices= target_indices)
+        
+        grover_call_counter +=  grover_call_counter_cur
+        oracle_call_counter +=  oracle_call_counter_cur
+
         element_j = elementos[j]
         I.improve(element_j)
-        t = max(t//2,1 )
         
-    return I
+    return I, oracle_call_counter, grover_call_counter
 
 if __name__ == "__main__":
 
@@ -114,19 +129,44 @@ if __name__ == "__main__":
     
     count_1 = 0
     count_2 = 0 
-    for _ in range(100):
+
+    oracle_call_counter_1_mean = 0
+    grover_call_counter_1_mean = 0 
+    oracle_call_counter_2_mean = 0
+    grover_call_counter_2_mean = 0 
+    
+    N_execs = 100
+
+    for _ in range(N_execs):
         f = [ 1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 , 8]
         g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
         d = 3
-        I = classical_find_d_smallest_diff_types(f,g,d)
+        I , oracle_call_counter_1, grover_call_counter_1 = classical_find_d_smallest_diff_types(f,g,d)
         count_1 += int(erro_no_teste(I, [('a',1),('b',4),('c',8)]))
+
+        oracle_call_counter_1_mean += oracle_call_counter_1
+        grover_call_counter_1_mean += grover_call_counter_1
 
         f = [ 5 ,  4 ,  3 ,  2 ,  1 ,  0 ,  -1 , -2]
         g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
         d = 3
-        I = classical_find_d_smallest_diff_types(f,g,d)
+        I, oracle_call_counter_2, grover_call_counter_2 = classical_find_d_smallest_diff_types(f,g,d)
         count_2 += int( erro_no_teste(I, [('a',3), ('b',-1), ('c',-2)]))
     
+        oracle_call_counter_2_mean += oracle_call_counter_2
+        grover_call_counter_2_mean += grover_call_counter_2
+    
+    oracle_call_counter_1_mean = oracle_call_counter_1_mean/N_execs
+    grover_call_counter_1_mean = grover_call_counter_1_mean/N_execs
+    oracle_call_counter_2_mean = oracle_call_counter_2_mean/N_execs
+    grover_call_counter_2_mean = grover_call_counter_2_mean/N_execs
+
+    print()
     print("n° errados no teste1:",count_1)
+    print(f"oracle_call_counter = {oracle_call_counter_1_mean},\ngrover_call_counter = {grover_call_counter_1_mean}")
+    print()
+    print("--"*50)
+    print()
     print("n° errados no teste2:",count_2)
+    print(f"oracle_call_counter = {oracle_call_counter_2_mean},\ngrover_call_counter = {grover_call_counter_2_mean}\n")
     
