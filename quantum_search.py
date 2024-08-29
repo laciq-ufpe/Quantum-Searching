@@ -76,6 +76,35 @@ def quantum_search(n, target_indices):
 
     return i, oracle_call_counter, grover_call_counter
 
+def quantum_minimum_search(L):
+    """ 
+    L should be a numpy array
+    """
+
+    #based on "A quantum algorithm for finding the minimum" (https://arxiv.org/pdf/quant-ph/9607014)
+
+    max_iterations = int(np.ceil(22.5*np.sqrt(len(L))+1.4*np.log2(len(L))**2))
+    threshold_index = np.random.randint(0,len(L)-1)
+
+    total_oracle_calls = 0
+    total_grover_calls = 0
+
+    for i in range(max_iterations):
+        # mark every index such that has a lower value than the threshold
+        targets = []
+        for j in range(len(L)):
+            if(L[j]<L[threshold_index]): targets.append(j)
+        if targets == []: break
+        # use quantum exponential search algorithm (quantum_search) to search these indexes
+        y, oracle, grover = quantum_search_on_list(L, targets)
+
+        # if L[y] is lower, y turns into the new threshold
+        if(L[y]<L[threshold_index]): threshold_index = i
+
+        total_oracle_calls += oracle
+        total_grover_calls += grover
+    
+    return threshold_index, total_oracle_calls, total_grover_calls
 
 if __name__ == "__main__":
     # 2**3 positions
@@ -88,5 +117,5 @@ if __name__ == "__main__":
     print( quantum_search_on_list(L, [3,2]))
     print("---"*60)
 
-    for _ in range(10):
-        print(quantum_search(12,[2,4, 1000]))
+    L = np.array([0,1,2,-3,4,-5,6,-8])
+    print( quantum_minimum_search(L))
