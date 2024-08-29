@@ -116,6 +116,14 @@ if __name__ == "__main__":
     L = np.array([0,1,2,3,4])
     print( quantum_search_on_list(L, [3,2]))
     print("---"*60)
+    print("---"*60)
 
     L = np.array([0,1,2,-3,4,-5,6,-8])
     print( quantum_minimum_search(L))
+
+    print("---"*60)
+    L = np.arange(0, 2**8)
+    np.random.shuffle(L)
+    print("len(L) =",len(L))
+    print(L[:10], np.argmin(L))
+    print(quantum_minimum_search(L))
