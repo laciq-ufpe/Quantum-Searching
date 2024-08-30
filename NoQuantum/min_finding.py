@@ -19,32 +19,38 @@ def minimum_search(n= None, L= None, n_iterations=None):
 
     total_oracle_calls = 0
 
+    #chute inicial
+    y = 0
+
     while True:
         # control for testing success probability with lower number of iterations
         if(n_iterations is not None): 
             iter_counter = iter_counter + 1
             if(iter_counter > n_iterations): break
         # mark every index such that has a lower value than the threshold
-        targets = []
-        for j in range(len(L)):
-            if(L[j]<L[threshold_index]): targets.append(j)
+        
+        targets = np.where(L < L[threshold_index])[0]
+        if len(targets) == 0:
+            break
 
-        # if is the smallest, break
-        if targets == []: break
         # use quantum exponential search algorithm (quantum_search) to search these indexes
         y = np.random.choice(targets)
         total_oracle_calls += (9/2)*np.sqrt(len(L)/len(targets))
 
         # if L[y] is lower, y turns into the new threshold
-        if(L[y]<L[threshold_index]): threshold_index = y
-
+        if(L[y]<L[threshold_index]): 
+            threshold_index = y
+            # if is the smallest, break
+            if y == np.argmin(L):
+                break
+            
 
     
     return int(threshold_index), int(np.ceil(total_oracle_calls))
 
 if __name__ == "__main__":
     N_execs = 30
-    lista_qubits = np.arange(3,16)
+    lista_qubits = np.arange(3,30)
     N = 2**lista_qubits
     
     custo_per_n = [ [minimum_search(n)[1]  for _ in tqdm(range(N_execs))] for n in lista_qubits]
