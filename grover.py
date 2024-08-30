@@ -77,6 +77,15 @@ def grover_algorithm(n, target_indices= [], iterations=1, grover_oracle= None, s
         plt.show()
     return state
 
+def fast_grover(n, target_indices, iterations=1):
+    N = 2**n
+    s = np.ones(2**n)/np.sqrt(N)
+    state = s.copy()
+    for _ in range(iterations):
+        state[target_indices] = -state[target_indices]
+        state = 2*s*np.dot(s,state) - state
+    return state
+
 def main():
     # Parameters
     n = 6  # Number of qubits

@@ -61,7 +61,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from tqdm import tqdm
     N_execs = 30
-    lista_qubits = np.arange(3,20)
+    lista_qubits = np.arange(5,20)
     N = 2**lista_qubits
     t = 4
     

@@ -1,4 +1,4 @@
-from grover import grover_algorithm
+from grover import grover_algorithm, fast_grover
 import numpy as np
 
 
@@ -74,9 +74,9 @@ def quantum_search(n, target_indices= None, t= None, n_iterations=None):
         # 'choose j uniformly at random among the nonnegative integers smaller than m'
         j = np.random.randint(0,m)
         # returns the amplitudes of the quantum state after j grover iterations
-        state = grover_algorithm(n,
-                                target_indices= target_indices,
-                                iterations=j)
+        state = fast_grover(n,
+                            target_indices= target_indices,
+                            iterations=j)
             
         if j > 0:   
             # counter to check "run time"
