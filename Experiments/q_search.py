@@ -1,75 +1,63 @@
 import sys
-sys.path.append('../')
-from quantum_search import quantum_search
-from find_d import classical_find_d_smallest_diff_types
-import matplotlib.pyplot as plt
+sys.path.append('..')
+import os
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
-
+from quantum_search import quantum_search
+from execucao import execute_algorithm, save_exec_arrays
+from plots import plot_exps
 """The total expected number of Grover iterations, in case
 the critical stage is reached, is therefore upper-bounded
 by (9/2)m0"""
 
-def plot_exps(lista_qubits, means, stds, title=None):
-    
-    lower_bound = means - stds
-    upper_bound = means + stds
-
-    # Plot the means
-    plt.plot(lista_qubits, means, label='Mean', color='green')
-
-    # Fill the area between mean + std and mean - std
-    plt.fill_between(lista_qubits, lower_bound, upper_bound, color='lightblue', alpha=0.5, label='Mean ± Std')
-
-    # Add labels and legend
-    plt.xlabel('N')
-    plt.ylabel('n° iterations')
-
-    if title is not None:
-        plt.title(title)
-    else:
-        plt.title('Mean with ± Std Area')
-
 
 if __name__ == "__main__":
+    AlgorithmFolder = "Q_Search"
+    ArrayFolder = os.path.join("Arrays", AlgorithmFolder)
+    ImageFolder = os.path.join("Images", AlgorithmFolder)
+    os.makedirs(ArrayFolder, exist_ok= True)
+    os.makedirs(ImageFolder, exist_ok= True)
     
     N_execs = 100
-    t = 1
+    lista_qubits = np.arange(1,7)
+    N = 2**lista_qubits
+    plotar= False
 
-    grover_mean_per_n = []
-    grover_std_per_n  = []
-    oracle_mean_per_n = []
-    oracle_std_per_n  = []
 
-    lista_qubits = np.arange(1,14)
+    for t in 2**np.arange(0,6):
+        ImagesFolder_t = os.path.join(ImageFolder,f"t{t}")
+        ArrayFolder_t = os.path.join(ArrayFolder,f"t{t}")
+        os.makedirs(ImagesFolder_t, exist_ok= True)
+        os.makedirs(ArrayFolder_t, exist_ok= True)
 
-    for n in tqdm(lista_qubits):
-        oracle_call_counter_list = []
-        grover_call_counter_list = []
-        for _ in range(N_execs):
-            target_indices = np.random.randint(low= 0, high= 2**n, size= t)
-            i, oracle_call_counter, grover_call_counter = quantum_search(n,target_indices= target_indices)
-            oracle_call_counter_list.append(oracle_call_counter)
-            grover_call_counter_list.append(grover_call_counter)
+        oracle_mean_per_n, oracle_std_per_n, grover_mean_per_n, grover_std_per_n = execute_algorithm(quantum_search,
+                                                                                                    args= (None,t),
+                                                                                                    N_execs= N_execs,
+                                                                                                    lista_qubits= lista_qubits,
+                                                                                                    n_qubits_is_arg=True)
+
+        save_exec_arrays(ArrayFolder_t , oracle_mean_per_n, oracle_std_per_n, grover_mean_per_n, grover_std_per_n)
         
+        plot_exps(N, grover_mean_per_n, grover_std_per_n,"grover calls")
+        plt.legend()
 
-        grover_mean_per_n.append(np.mean(grover_call_counter_list))
-        grover_std_per_n.append(np.std(grover_call_counter_list))
-        oracle_mean_per_n.append(np.mean(oracle_call_counter_list))
-        oracle_std_per_n.append(np.std(oracle_call_counter_list))
+        # Saving the figure in local memory
+        plt.savefig(os.path.join(ImagesFolder_t, 'grover.png'))
         
+        if plotar:
+            plt.show()
+        else:
+            plt.clf()
 
-    grover_mean_per_n = np.array(grover_mean_per_n)
-    grover_std_per_n  = np.array(grover_std_per_n)
-    plot_exps(2**lista_qubits, grover_mean_per_n, grover_std_per_n,"grover_calls")
-    # Saving the figure in local memory
-    plt.savefig('grover.png')
-    plt.clf()
-    
-    oracle_mean_per_n = np.array(oracle_mean_per_n)
-    oracle_std_per_n  = np.array(oracle_std_per_n)
-    plot_exps(2**lista_qubits, oracle_mean_per_n, oracle_std_per_n,"oracle_calls")
-    plt.plot(2**lista_qubits, (9/2)*np.sqrt(2**lista_qubits/t), color= 'red', label= "teórico")
-    plt.legend()
-    # Saving the figure in local memory
-    plt.savefig('oracle.png')
+        
+        plot_exps(N, oracle_mean_per_n, oracle_std_per_n,"oracle calls")
+        plt.plot(N, (9/2)*np.sqrt(N/t), color= 'red', label= "maximo teórico")
+        plt.plot(N, np.floor((np.sin(np.pi/8))*np.sqrt(N/t)), color= 'blue', label= "mínimo teórico")
+        plt.legend()
+        
+        if plotar:
+            plt.show()
+
+        # Saving the figure in local memory
+        plt.savefig(os.path.join(ImagesFolder_t,'oracle.png'))
