@@ -82,10 +82,17 @@ class SmallestSet:
         return element.value < self.greatest_element().value
 
 
-def classical_find_d_smallest_diff_types(f,g,d):
+def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
     """
         f and g are sequences of size 2**n
     """
+    if n is not None:
+        N = 2**n 
+
+    f = np.arange(N)
+    np.random.shuffle(f)
+    g = np.random.choice(np.arange(e), size= N)
+
     assert len(f) == len(g)
     N = len(f)
 
@@ -141,7 +148,7 @@ if __name__ == "__main__":
         f = [ 1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 , 8]
         g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
         d = 3
-        I , oracle_call_counter_1, grover_call_counter_1 = classical_find_d_smallest_diff_types(f,g,d)
+        I , oracle_call_counter_1, grover_call_counter_1 = classical_find_d_smallest_diff_types(None,f,g,d)
         count_1 += int(erro_no_teste(I, [('a',1),('b',4),('c',8)]))
 
         oracle_call_counter_1_mean += oracle_call_counter_1
@@ -150,7 +157,7 @@ if __name__ == "__main__":
         f = [ 5 ,  4 ,  3 ,  2 ,  1 ,  0 ,  -1 , -2]
         g = ['a', 'a', 'a', 'b', 'b', 'b', 'b', 'c']
         d = 3
-        I, oracle_call_counter_2, grover_call_counter_2 = classical_find_d_smallest_diff_types(f,g,d)
+        I, oracle_call_counter_2, grover_call_counter_2 = classical_find_d_smallest_diff_types(None, f,g,d)
         count_2 += int( erro_no_teste(I, [('a',3), ('b',-1), ('c',-2)]))
     
         oracle_call_counter_2_mean += oracle_call_counter_2
