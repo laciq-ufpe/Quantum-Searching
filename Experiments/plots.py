@@ -10,9 +10,6 @@ def plot_exps(lista_qubits, means, stds, title=None, show= False):
     # Fill the area between mean + std and mean - std
     plt.fill_between(lista_qubits, lower_bound, upper_bound, color='lightblue', alpha=0.5, label='Mean ± Std')
 
-    # Add labels and legend
-    plt.xlabel('N')
-    plt.ylabel('n° iterations')
 
     if title is not None:
         plt.title(title)

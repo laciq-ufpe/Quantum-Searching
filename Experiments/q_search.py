@@ -23,7 +23,8 @@ def exec_save(lista_qubits, t, N_execs= 100, plotar= False):
                                                                                                 args= (None,t),
                                                                                                 N_execs= N_execs,
                                                                                                 lista_qubits= lista_qubits,
-                                                                                                n_qubits_is_arg=True)
+                                                                                                n_qubits_is_arg=True,
+                                                                                                )
 
     save_exec_arrays(ArrayFolder_t , oracle_mean_per_n, oracle_std_per_n, grover_mean_per_n, grover_std_per_n)
     
@@ -37,7 +38,6 @@ def exec_save(lista_qubits, t, N_execs= 100, plotar= False):
         plt.show()
     else:
         plt.clf()
-
     
     plot_exps(N, oracle_mean_per_n, oracle_std_per_n,"oracle calls")
     plt.plot(N, (9/2)*np.sqrt(N/t), color= 'red', label= "maximo teórico")
@@ -49,6 +49,7 @@ def exec_save(lista_qubits, t, N_execs= 100, plotar= False):
 
     # Saving the figure in local memory
     plt.savefig(os.path.join(ImagesFolder_t,'oracle.png'))
+    plt.clf()
 
 if __name__ == "__main__":
     AlgorithmFolder = "Q_Search"

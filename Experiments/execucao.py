@@ -10,8 +10,7 @@ def execute_algorithm(algorithm,
                       args= None,
                       N_execs = 100,
                       lista_qubits = np.arange(1,14),
-                      n_qubits_is_arg= False, 
-                      show_warnings= False):
+                      n_qubits_is_arg= False):
 
     """if n_qubits_is_arg == True: n should be the first arg"""
 
@@ -40,8 +39,6 @@ def execute_algorithm(algorithm,
             oracle_call_counter_list.append(oracle_call_counter)
             grover_call_counter_list.append(grover_call_counter)
         
-        if len(oracle_call_counter_list) == 0: 
-            continue
 
         grover_mean_per_n.append(np.mean(grover_call_counter_list))
         grover_std_per_n.append(np.std(grover_call_counter_list))

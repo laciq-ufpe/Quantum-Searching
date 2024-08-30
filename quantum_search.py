@@ -39,12 +39,12 @@ def quantum_search_on_list(L, target_indices):
     return i, oracle_call_counter, grover_call_counter
 
 def quantum_search(n, target_indices= None, t= None, n_iterations=None):
-
+    if t is not None: assert 2**n >= t
+    
     if target_indices is None and t is None:
         raise ValueError("t and target_indices can not be both None")
     
     elif target_indices is None:
-        t = min(t, 2**n)
         target_indices = np.random.choice(a=2**n, size= t, replace= False)
 
 
@@ -111,11 +111,11 @@ def quantum_minimum_search(n= None, L= None, n_iterations=None):
     total_oracle_calls = 0
     total_grover_calls = 0
 
-    for i in range(max_iterations):
+    for _ in range(max_iterations):
         # control for testing success probability with lower number of iterations
         if(n_iterations is not None): 
             iter_counter = iter_counter + 1
-            if(iter_counter >= n_iterations): break
+            if(iter_counter > n_iterations): break
         # mark every index such that has a lower value than the threshold
         targets = []
         for j in range(len(L)):

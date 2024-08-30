@@ -24,7 +24,7 @@ if __name__ == "__main__":
     
     plotar= False
     N_execs = 100
-    lista_qubits = np.arange(1,5)
+    lista_qubits = np.arange(1,10)
 
     oracle_mean_per_n, oracle_std_per_n, grover_mean_per_n, grover_std_per_n = execute_algorithm(quantum_minimum_search,
                                                                                                  N_execs= N_execs,
@@ -50,6 +50,10 @@ if __name__ == "__main__":
     # porem nao estamos considerando o custo de inicializacao e marcacao,
     # entao o custo teorico maximo que consideraremos e: (45/4)√N
     plt.plot(N, (45/4)*np.sqrt(N), color= 'red', label= "teórico")
+    plt.plot(N, N, label= "classico", color= 'black')
+    # Add labels and legend
+    plt.xlabel('N')
+    plt.ylabel('n° iterations')
     plt.legend()
     
     if plotar:
@@ -57,3 +61,4 @@ if __name__ == "__main__":
     
     # Saving the figure in local memory
     plt.savefig(os.path.join(ImageFolder,'oracle.png'))
+    plt.clf()
