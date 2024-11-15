@@ -81,17 +81,12 @@ class SmallestSet:
         # 2. or g(j) not ∈ g(I) and f(j) < f(i) for some i ∈ I
         return element.value < self.greatest_element().value
 
+    # TODO (ROD) add an id to each element to recognize when returning
 
-def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
+def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2, n_its=None):
     """
         f and g are sequences of size 2**n
     """
-    if n is not None:
-        N = 2**n 
-
-    f = np.arange(N)
-    np.random.shuffle(f)
-    g = np.random.choice(np.arange(e), size= N)
 
     assert len(f) == len(g)
     N = len(f)
@@ -137,6 +132,7 @@ def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
         
     return I, oracle_call_counter, grover_call_counter
 
+# TODO (VITOR) execute on debug mode to verify if calls count are correct
 if __name__ == "__main__":
 
     def erro_no_teste(I : SmallestSet, lista_tipos_valores):
