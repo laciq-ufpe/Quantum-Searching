@@ -99,7 +99,7 @@ def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
     if n is not None:
         N = 2**n 
     else:
-    n = int(np.ceil(np.log2(N)))
+        n = int(np.ceil(np.log2(N)))
     assert 2**n == N # sequences are of size 2**n
     
     # number of types
