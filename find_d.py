@@ -96,6 +96,9 @@ def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
     assert len(f) == len(g)
     N = len(f)
 
+    if n is not None:
+        N = 2**n 
+    else:
     n = int(np.ceil(np.log2(N)))
     assert 2**n == N # sequences are of size 2**n
     
@@ -111,7 +114,10 @@ def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
     oracle_call_counter = 0
     grover_call_counter = 0
 
-    for _ in range(100*int(np.sqrt(N*d))):
+    if n_its is None:    
+        n_its = 100*int(np.sqrt(N*d))
+
+    for _ in range(n_its):
 
         target_indices = [index for index, elemento in enumerate(elementos) if I.is_good_element(elemento)]
         if len(target_indices) == 0:
