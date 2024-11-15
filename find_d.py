@@ -100,8 +100,12 @@ def classical_find_d_smallest_diff_types(n= None, f= None,g= None,d= 1, e=2):
         N = 2**n 
     else:
         n = int(np.ceil(np.log2(N)))
-    assert 2**n == N # sequences are of size 2**n
     
+    N = len(f)
+    for _ in range(2**n-N):
+        f.append(np.inf)
+        g.append('padded')
+
     # number of types
     e = len(np.unique(g))
     if e < d: print(f'warning: not enough element types (e = {e}) for wanted solution (d = {d}), making: d = {e}')
