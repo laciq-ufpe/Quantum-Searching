@@ -11,8 +11,10 @@ def graph_list_to_dict(edge_list, no_multigraphs = True, no_weightings = False, 
         new_list = []
         for edge in edge_list:
             new_list.append(edge)
-            edge[0], edge[1]  = edge[1], edge[0] 
-            new_list.append(edge)
+            if no_weightings:
+                new_list.append((edge[1], edge[0]))
+            else:
+                new_list.append((edge[1], edge[0], edge[2]))
         edge_list = new_list
     # Turns the list of edges into a dictionary
     result = {}
@@ -35,7 +37,10 @@ def graph_dict_to_list(graph):
     result = []
     for origin in graph.keys():
         for destiny in graph[origin]:
-            result.append((origin, *destiny))
+            if type(destiny) == tuple:
+                result.append((origin, *destiny))
+            else:
+                result.append((origin, destiny))
     return result
 
 def mst(graph, performance = False):
@@ -47,6 +52,9 @@ def mst(graph, performance = False):
 
     # Converts graph in dictionary form to (f,g) form needed for the quantum algorithms
     f, g = [], []
+    if type(graph) != dict:
+        graph = graph_list_to_dict(graph)
+
     vertex_list = graph.keys()
     edge_list = graph_dict_to_list(graph)
     tree_DS = DisjointSet(elements=vertex_list)
@@ -66,7 +74,10 @@ def mst(graph, performance = False):
         # l = iteration
         # k = tree_number
         # m = number of edges
-        resulting_indices, oracle_counter, grover_counter = fd.classical_find_d_smallest_diff_types(f=f,g=g,d=tree_number,e=len(edge_list))
+        smallest_set, oracle_counter, grover_counter = fd.classical_find_d_smallest_diff_types(f=f,g=g,d=tree_number,e=len(edge_list),
+                                                                                                    n_its=int((iteration+2)*100*np.sqrt(tree_number*len(edge_list))))
+        
+        smallest_set = resulting_indices
         total_oracle_calls += oracle_counter
         total_grover_calls += grover_counter
         # Merges trees in disjoint set
@@ -91,7 +102,9 @@ def mst(graph, performance = False):
 
 
 def main():
-    NotImplemented
+    graph = [(0,1, 1),(0,2, 1),(1,2, 1),(2,3, 1),(1,4, 1)]
+    mst(graph)
+
 
 if __name__ == "__main__":
     main()
